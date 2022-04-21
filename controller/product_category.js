@@ -8,7 +8,7 @@ exports.getAllCategory = async (req, res) => {
   try {
     const result = await knex("product_category")
       .select("*")
-      .where("is_deleted", false);
+      .whereNull("deleted_at");
     response.ok(result, res);
   } catch (error) {
     response.err(error, res);
@@ -22,7 +22,7 @@ exports.getOneCategory = async (req, res) => {
     const result = await knex("product_category")
       .select("*")
       .where("id", id)
-      .andWhere("is_deleted", false)
+      .whereNull("deleted_at")
       .first();
     if (!result) {
       response.notFound(res);
@@ -36,15 +36,19 @@ exports.getOneCategory = async (req, res) => {
 
 exports.insertCategory = async (req, res) => {
   try {
-    const userId = req.cookies.userId;
-    const { category_name } = await category.validateAsync(req.body);
-    await knex("product_category").insert({
-      id: uuidv4(),
-      category_name: category_name,
-      created_at: new Date(),
-      created_by: userId,
-    });
-    response.ok("INSERT SUCCESS", res);
+    const infoLogin = req.cookies.userInfo;
+
+    if (infoLogin.role != "Administrator") {
+      response.permissionDenied(res, "Permission Denied");
+    } else {
+      const { category_name } = await category.validateAsync(req.body);
+      await knex("product_category").insert({
+        id: uuidv4(),
+        category_name: category_name,
+        created_by: infoLogin.id,
+      });
+      response.ok("INSERT SUCCESS", res);
+    }
   } catch (error) {
     response.err(error, res);
   }
@@ -52,27 +56,31 @@ exports.insertCategory = async (req, res) => {
 
 exports.updateCategory = async (req, res) => {
   try {
-    const userId = req.cookies.userId;
+    const loginInfo = req.cookies.userInfo;
     const { id } = await getOne.validateAsync(req.params);
     const { category_name } = await category.validateAsync(req.body);
 
-    const getCategory = await knex("product_category")
-      .select("id")
-      .where("id", id)
-      .andWhere("is_deleted", false)
-      .first();
-
-    if (!getCategory) {
-      response.notFound(res);
+    if (loginInfo.role != "Administrator") {
+      response.permissionDenied(res, "Permission Denied");
     } else {
-      await knex("product_category")
-        .update({
-          category_name: category_name,
-          updated_by: userId,
-        })
-        .where("id", id);
+      const getCategory = await knex("product_category")
+        .select("id")
+        .where("id", id)
+        .whereNull("deleted_at")
+        .first();
 
-      response.ok("UPDATE SUCCESS", res);
+      if (!getCategory) {
+        response.notFound(res);
+      } else {
+        await knex("product_category")
+          .update({
+            category_name: category_name,
+            updated_by: loginInfo.id,
+          })
+          .where("id", id);
+
+        response.ok("UPDATE SUCCESS", res);
+      }
     }
   } catch (error) {
     response.err(error, res);
@@ -81,25 +89,29 @@ exports.updateCategory = async (req, res) => {
 
 exports.deleteCategory = async (req, res) => {
   try {
-    const userId = req.cookies.userId;
+    const loginInfo = req.cookies.userInfo;
     const { id } = await del.validateAsync(req.params);
 
-    const getCategory = await knex("product_category")
-      .select("id")
-      .where("id", id)
-      .andWhere("is_deleted", false)
-      .first();
-
-    if (!getCategory) {
-      response.notFound(res);
+    if (loginInfo.role != "Administrator") {
+      response.permissionDenied(res, "Permission Denied");
     } else {
-      await knex("product_category")
-        .update({
-          is_deleted: true,
-          updated_by: userId,
-        })
-        .where("id", id);
-      response.ok("DELETE SUCCESS", res);
+      const getCategory = await knex("product_category")
+        .select("id")
+        .where("id", id)
+        .whereNull("deleted_at")
+        .first();
+
+      if (!getCategory) {
+        response.notFound(res);
+      } else {
+        await knex("product_category")
+          .update({
+            deleted_at: new Date(),
+            updated_by: loginInfo.id,
+          })
+          .where("id", id);
+        response.ok("DELETE SUCCESS", res);
+      }
     }
   } catch (error) {
     response.err(error, res);

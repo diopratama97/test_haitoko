@@ -11,7 +11,7 @@ require("dotenv").config();
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const result = await knex("users").select("*").where("is_deleted", false);
+    const result = await knex("user").select("*").whereNull("deleted_at");
     response.ok(result, res);
   } catch (error) {
     response.err(error, res);
@@ -22,10 +22,10 @@ exports.getOneUsers = async (req, res) => {
   try {
     const { id } = await getOne.validateAsync(req.params);
 
-    let getOneUser = await knex("users")
+    const getOneUser = await knex("user")
       .select("*")
       .where("id", id)
-      .andWhere("is_deleted", false)
+      .whereNull("deleted_at")
       .first();
     if (!getOneUser) {
       response.notFound(res);
@@ -40,13 +40,13 @@ exports.getOneUsers = async (req, res) => {
 exports.updateUsers = async (req, res) => {
   try {
     const { id } = await getOne.validateAsync(req.params);
-    const { name, email, roles, gender, phone_number, bank_number } =
+    const { name, email, gender, phone_number } =
       await usersUpdate.validateAsync(req.body);
 
-    const getUser = await knex("users")
-      .select("id")
+    const getUser = await knex("user")
+      .select("*")
       .where("id", id)
-      .andWhere("is_deleted", false)
+      .whereNull("deleted_at")
       .first();
 
     if (!getUser) {
@@ -55,12 +55,10 @@ exports.updateUsers = async (req, res) => {
       const usersData = {
         name: name,
         email: email,
-        roles: roles,
         gender: gender,
         phone_number: phone_number,
-        bank_number: bank_number,
       };
-      await knex("users").update(usersData).where("id", id);
+      await knex("user").update(usersData).where("id", id);
       response.ok("UPDATE SUCCESS", res);
     }
   } catch (error) {
@@ -70,18 +68,27 @@ exports.updateUsers = async (req, res) => {
 
 exports.deleteUsers = async (req, res) => {
   try {
+    const userLogin = req.cookies.userInfo;
     const { id } = await del.validateAsync(req.params);
 
-    const getUser = await knex("users")
-      .select("id")
-      .where("id", id)
-      .andWhere("is_deleted", false)
-      .first();
-    if (!getUser) {
-      response.notFound(res);
+    if (userLogin.role != "Administrator") {
+      response.permissionDenied(res, "Permission Denied");
     } else {
-      await knex("users").update("is_deleted", true).where("id", id);
-      response.ok("DELETE SUCCESS", res);
+      if (id == userLogin.id) {
+        response.permissionDenied(res, "Cannot delete if you still login");
+      } else {
+        const getUser = await knex("user")
+          .select("*")
+          .where("id", id)
+          .whereNull("deleted_at")
+          .first();
+        if (!getUser) {
+          response.notFound(res);
+        } else {
+          await knex("user").update("deleted_at", new Date()).where("id", id);
+          response.ok("DELETE SUCCESS", res);
+        }
+      }
     }
   } catch (error) {
     response.err(error, res);
@@ -94,9 +101,10 @@ exports.changePassword = async (req, res) => {
       await changePass.validateAsync(req.body);
     const userId = req.cookies.userId;
 
-    const getUser = await knex("users")
+    const getUser = await knex("user")
       .select("*")
       .where("id", userId)
+      .whereNull("deleted_at")
       .andWhere("password", md5(oldPassword))
       .first();
 
@@ -105,7 +113,7 @@ exports.changePassword = async (req, res) => {
     } else {
       const checkPassword = newPassword == confirmPassword;
       if (checkPassword == true) {
-        await knex("users")
+        await knex("user")
           .update("password", md5(newPassword))
           .where("id", getUser.id);
         response.ok("BERHASIL UBAH PASSWORD", res);

@@ -4,32 +4,34 @@ let jwt = require("jsonwebtoken");
 let knex = require("../config/db/conn");
 const { v4: uuidv4 } = require("uuid");
 const { transporter } = require("../config/transporter-email");
-const { login, register } = require("../helper/validations");
+const {
+  loginValidation,
+  registrasiValidation,
+} = require("../helper/validations");
 require("dotenv").config();
 
 //controller untuk register
 exports.registrasi = async (req, res) => {
   try {
-    const { name, email, password, roles, gender, phone_number, bank_number } =
-      await register.validateAsync(req.body);
+    const { name, email, password, gender, phone_number, role } =
+      await registrasiValidation.validateAsync(req.body);
     const post = {
       id: uuidv4(),
       name: name,
       email: email,
       password: md5(password),
-      roles: roles,
-      created_at: new Date(),
       gender: gender,
       phone_number: phone_number,
-      bank_number: bank_number,
+      role: role,
     };
 
-    let queryCekemail = await knex("users")
+    const queryCekemail = await knex("user")
       .select("email")
       .where("email", post.email)
       .first();
+
     if (!queryCekemail) {
-      const queryInsert = await knex("users").insert(post);
+      const queryInsert = await knex("user").insert(post);
       if (queryInsert) {
         // send mail
         let info = await transporter.sendMail({
@@ -55,12 +57,15 @@ exports.registrasi = async (req, res) => {
 //controler login
 exports.login = async (req, res) => {
   try {
-    const { email, password } = await login.validateAsync(req.body);
+    const { email, password } = await loginValidation.validateAsync(req.body);
 
-    const queryLogin = await knex("users")
-      .select("id")
-      .where("email", email)
-      .andWhere("password", md5(password))
+    const queryLogin = await knex("user")
+      .select("*")
+      .where({
+        email: email,
+        password: md5(password),
+        deleted_at: null,
+      })
       .first();
 
     if (!queryLogin) {
@@ -80,7 +85,7 @@ exports.login = async (req, res) => {
           expiresIn: "1d",
         }
       );
-      await knex("users")
+      await knex("user")
         .update("refresh_token", refreshToken)
         .where("id", queryLogin.id);
 
@@ -88,7 +93,7 @@ exports.login = async (req, res) => {
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
       });
-      res.cookie("userId", queryLogin.id, {
+      res.cookie("userInfo", queryLogin, {
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
       });
@@ -103,16 +108,16 @@ exports.login = async (req, res) => {
 exports.Logout = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   if (!refreshToken) return res.sendStatus(204);
-  const user = await knex("users")
+  const user = await knex("user")
     .select("*")
     .where("refresh_token", refreshToken)
     .first();
 
   if (!user) return res.sendStatus(204);
 
-  await knex("users").update("refresh_token", null).where("id", user.id);
+  await knex("user").update("refresh_token", null).where("id", user.id);
   res.clearCookie("refreshToken");
-  res.clearCookie("userId");
+  res.clearCookie("userInfo");
   return res.sendStatus(200);
 };
 
@@ -121,7 +126,7 @@ exports.tokenRefresh = async (req, res) => {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) return res.sendStatus(401);
 
-    const user = await knex("users")
+    const user = await knex("user")
       .select("*")
       .where("refresh_token", refreshToken)
       .first();

@@ -2,18 +2,14 @@
   "openapi": "3.0.0",
   "info": {
     "title": "API Documentations",
-    "description": "List api pos-backend Attech",
+    "description": "List api Haitoko Test",
     "version": "1.0.0",
     "contact": {
-      "name": "Backend Attech",
+      "name": "Dio Yoga Pratama",
       "email": "dyopratama6@gmail.com"
     }
   },
   "servers": [
-    {
-      "url": "https://pos-backend-attech.herokuapp.com",
-      "description": "development"
-    },
     {
       "url": "http://localhost:3030",
       "description": "local"
@@ -59,16 +55,13 @@
                   "password": {
                     "type": "string"
                   },
-                  "roles": {
-                    "type": "string"
-                  },
                   "phone_number": {
                     "type": "string"
                   },
-                  "bank_number": {
+                  "gender": {
                     "type": "string"
                   },
-                  "gender": {
+                  "role": {
                     "type": "string"
                   }
                 }
@@ -242,7 +235,7 @@
             "description": "Internal Server Error"
           }
         },
-        "description": "Get All Users",
+        "description": "<strong>[Role Access]</strong> <br>1. Administrator <br> 2. Buyer  ",
         "security": [
           {
             "Authorization": []
@@ -266,7 +259,7 @@
             "description": "Internal Server Error"
           }
         },
-        "description": "Get One Users",
+        "description": "<strong>[Role Access]</strong> <br>1. Administrator <br> 2. Buyer  ",
         "parameters": [
           {
             "schema": {
@@ -301,35 +294,22 @@
                   "email": {
                     "type": "string"
                   },
-                  "roles": {
-                    "type": "string"
-                  },
                   "gender": {
-                    "type": "string"
-                  },
-                  "bank_number": {
                     "type": "string"
                   },
                   "phone_number": {
                     "type": "string"
                   }
                 },
-                "required": [
-                  "name",
-                  "email",
-                  "roles",
-                  "gender",
-                  "bank_number",
-                  "phone_number"
-                ]
+                "required": ["name", "email", "gender", "phone_number"]
               },
               "examples": {
                 "value": {
                   "name": "yourname",
                   "email": "yourname@example.com",
-                  "roles": "owner",
+
                   "gender": "L",
-                  "bank_number": "23232sdsdsds",
+
                   "phone_number": "0"
                 }
               }
@@ -348,7 +328,7 @@
             "description": "Internal Server Error"
           }
         },
-        "description": "Update Users",
+        "description": "<strong>[Role Access]</strong> <br>1. Administrator <br> 2. Buyer  ",
         "parameters": [
           {
             "schema": {
@@ -381,7 +361,7 @@
             "description": "Internal Server Error"
           }
         },
-        "description": "Delete Users",
+        "description": "<strong>[Role Access]</strong> <br>1. Administrator <br>  ",
         "parameters": [
           {
             "schema": {
@@ -405,7 +385,7 @@
       "post": {
         "summary": "Change Password",
         "operationId": "Change Password",
-        "description": "Change Password",
+        "description": "<strong>[Role Access]</strong> <br>1. Administrator <br> 2. Buyer  ",
         "tags": ["Users"],
         "requestBody": {
           "required": true,
@@ -569,7 +549,7 @@
             "description": "Internal Server Error"
           }
         },
-        "description": "Insert Category",
+        "description": "<strong>[Role Access]</strong> <br>1. Administrator <br>",
         "security": [
           {
             "Authorization": []
@@ -615,7 +595,7 @@
             "description": "Internal Server Error"
           }
         },
-        "description": "Update Category",
+        "description": "<strong>[Role Access]</strong> <br>1. Administrator <br> ",
         "parameters": [
           {
             "schema": {
@@ -648,7 +628,7 @@
             "description": "Internal Server Error"
           }
         },
-        "description": "Delete Category",
+        "description": "<strong>[Role Access]</strong> <br>1. Administrator <br>",
         "parameters": [
           {
             "schema": {

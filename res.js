@@ -38,3 +38,8 @@ exports.notFound = (res) => {
   res.status(404).send({ message: "NOT FOUND" });
   res.end();
 };
+
+exports.permissionDenied = (res, data) => {
+  res.status(403).send({ message: data });
+  res.send();
+};
