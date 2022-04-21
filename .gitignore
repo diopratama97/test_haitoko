@@ -1,0 +1,6 @@
+.history
+.vscode
+logs
+node_modules
+temp
+data

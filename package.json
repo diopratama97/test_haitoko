@@ -1,22 +1,22 @@
 {
-  "name": "haitoko_test",
+  "name": "test_haitoko",
   "version": "1.0.0",
-  "description": "haitoko_test",
+  "description": "test_haitoko",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/diopratama97/haitoko_test.git"
+    "url": "git+https://github.com/diopratama97/test_haitoko.git"
   },
   "author": "attech backend",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/diopratama97/haitoko_test/issues"
+    "url": "https://github.com/diopratama97/test_haitoko/issues"
   },
-  "homepage": "https://github.com/diopratama97/haitoko_test#readme",
+  "homepage": "https://github.com/diopratama97/test_haitoko#readme",
   "dependencies": {
     "@hapi/joi": "^17.1.1",
     "body-parser": "^1.19.0",

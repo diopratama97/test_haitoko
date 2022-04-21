@@ -28,6 +28,7 @@ routes(app);
 //routes middleware
 app.use("/middleware", require("./middleware"));
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server started on port ${process.env.PORT}`);
+const port = process.env.PORT || 3030;
+app.listen(port, () => {
+  console.log(`Server started on port ${port}`);
 });
