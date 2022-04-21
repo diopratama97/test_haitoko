@@ -1,0 +1,39 @@
+{
+  "name": "haitoko_test",
+  "version": "1.0.0",
+  "description": "haitoko_test",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diopratama97/haitoko_test.git"
+  },
+  "author": "attech backend",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/diopratama97/haitoko_test/issues"
+  },
+  "homepage": "https://github.com/diopratama97/haitoko_test#readme",
+  "dependencies": {
+    "@hapi/joi": "^17.1.1",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "knex": "^0.95.15",
+    "md5": "^2.3.0",
+    "moment": "^2.29.1",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.2",
+    "mysql": "^2.18.1",
+    "nodemailer": "^6.6.1",
+    "nodemon": "^2.0.15",
+    "sqlite3": "^5.0.2",
+    "swagger-ui-express": "^4.1.6",
+    "uuidv4": "^6.2.10"
+  }
+}

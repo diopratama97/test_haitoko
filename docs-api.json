@@ -1,0 +1,682 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Documentations",
+    "description": "List api pos-backend Attech",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Backend Attech",
+      "email": "dyopratama6@gmail.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://pos-backend-attech.herokuapp.com",
+      "description": "development"
+    },
+    {
+      "url": "http://localhost:3030",
+      "description": "local"
+    }
+  ],
+
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Authentication"
+    },
+    {
+      "name": "Users",
+      "description": "API For Users"
+    },
+    {
+      "name": "Category",
+      "description": "API for Category"
+    }
+  ],
+
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "summary": "Register Account",
+        "operationId": "Register",
+        "description": "Register Authentication",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "roles": {
+                    "type": "string"
+                  },
+                  "phone_number": {
+                    "type": "string"
+                  },
+                  "bank_number": {
+                    "type": "string"
+                  },
+                  "gender": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "default": "application/json"
+            },
+            "in": "header",
+            "name": "Accept",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request (Invalid request body)"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Login",
+        "operationId": "login",
+        "description": "Login Authentication",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": ["email", "password"]
+              },
+              "examples": {
+                "value": {
+                  "email": "demo@rocketmail.net",
+                  "password": "yourpassword"
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "default": "application/json"
+            },
+            "in": "header",
+            "name": "Accept",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request (Invalid request body)"
+          },
+          "404": {
+            "description": "Not Found (User not found or OAuth not valid)"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "get": {
+        "summary": "Logout",
+        "operationId": "logout",
+        "description": "Logout",
+        "tags": ["Auth"],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "default": "application/json"
+            },
+            "in": "header",
+            "name": "Accept",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request (Invalid request body)"
+          },
+          "404": {
+            "description": "Not Found (User not found or OAuth not valid)"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/auth/refreshToken": {
+      "get": {
+        "summary": "refreshToken",
+        "operationId": "refreshToken",
+        "description": "refreshToken",
+        "tags": ["Auth"],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "default": "application/json"
+            },
+            "in": "header",
+            "name": "Accept",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request (Invalid request body)"
+          },
+          "404": {
+            "description": "Not Found (User not found or OAuth not valid)"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/middleware/users": {
+      "get": {
+        "summary": "Get all Users",
+        "tags": ["Users"],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "description": "Get All Users",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "operationId": "GetAllUsers"
+      }
+    },
+    "/middleware/Users/{id}": {
+      "get": {
+        "summary": "Get One Users",
+        "tags": ["Users"],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "description": "Get One Users",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "operationId": "GetOneUsers"
+      },
+      "put": {
+        "summary": "Update Users",
+        "tags": ["Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "roles": {
+                    "type": "string"
+                  },
+                  "gender": {
+                    "type": "string"
+                  },
+                  "bank_number": {
+                    "type": "string"
+                  },
+                  "phone_number": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "email",
+                  "roles",
+                  "gender",
+                  "bank_number",
+                  "phone_number"
+                ]
+              },
+              "examples": {
+                "value": {
+                  "name": "yourname",
+                  "email": "yourname@example.com",
+                  "roles": "owner",
+                  "gender": "L",
+                  "bank_number": "23232sdsdsds",
+                  "phone_number": "0"
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "description": "Update Users",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "operationId": "UpdateUsers"
+      },
+      "delete": {
+        "summary": "Delete Users",
+        "tags": ["Users"],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "description": "Delete Users",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "operationId": "DeleteUsers"
+      }
+    },
+    "/middleware/Users/changepass": {
+      "post": {
+        "summary": "Change Password",
+        "operationId": "Change Password",
+        "description": "Change Password",
+        "tags": ["Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "oldPassword": {
+                    "type": "string"
+                  },
+                  "newPassword": {
+                    "type": "string"
+                  },
+                  "confirmPassword": {
+                    "type": "string"
+                  }
+                },
+                "required": ["oldPassword", "newPassword", "confirmPassword"]
+              },
+              "examples": {
+                "value": {
+                  "oldPassword": "yourpassword",
+                  "newPassword": "yourpassword",
+                  "confirmPassword": "yourpassword"
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "default": "application/json"
+            },
+            "in": "header",
+            "name": "Accept",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request (Invalid request body)"
+          },
+          "404": {
+            "description": "Not Found (User not found or OAuth not valid)"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ]
+      }
+    },
+    "/category": {
+      "get": {
+        "summary": "Get All Category",
+        "operationId": "category",
+        "description": "Get All Category",
+        "tags": ["Category"],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "default": "application/json"
+            },
+            "in": "header",
+            "name": "Accept",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request (Invalid request body)"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/category/{id}": {
+      "get": {
+        "summary": "Get One Category",
+        "tags": ["Category"],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "description": "Get One Category",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "GetOneCategory"
+      }
+    },
+    "/middleware/category": {
+      "post": {
+        "summary": "Insert Category",
+        "tags": ["Category"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category_name": {
+                    "type": "string"
+                  }
+                },
+                "required": ["category_name"]
+              },
+              "examples": {
+                "value": {
+                  "category_name": "yourcategoryname"
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "description": "Insert Category",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "operationId": "InsertCategory"
+      }
+    },
+    "/middleware/category/{id}": {
+      "put": {
+        "summary": "Update Category",
+        "tags": ["Category"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category_name": {
+                    "type": "string"
+                  }
+                },
+                "required": ["category_name"]
+              },
+              "examples": {
+                "value": {
+                  "category_name": "yourcategoryname"
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "description": "Update Category",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "operationId": "UpdateCategory"
+      },
+      "delete": {
+        "summary": "Delete Category",
+        "tags": ["Category"],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "description": "Delete Category",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "operationId": "DeleteCategory"
+      }
+    }
+  },
+
+  "components": {
+    "securitySchemes": {
+      "Authorization": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
