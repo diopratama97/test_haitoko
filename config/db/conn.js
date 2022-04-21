@@ -1,6 +1,11 @@
-const knex = require("knex");
-const knexfile = require("./knexfile");
+const knex = require("knex")({
+  client: "mysql",
+  connection: {
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "haitoko_test",
+  },
+});
 
-const db = knex(knexfile.development);
-
-module.exports = db;
+module.exports = knex;
