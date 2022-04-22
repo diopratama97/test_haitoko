@@ -1113,6 +1113,53 @@
         ],
         "operationId": "DeleteTroli"
       }
+    },
+    "/middleware/troli-checkout": {
+      "post": {
+        "summary": "Troli Checkout",
+        "tags": ["Troli"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "troli_Ids": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": ["troli_Ids"]
+              },
+              "examples": {
+                "value": {
+                  "troli_Ids": "963a7091-b1c0-4d07-ea2a-77185b1da1de,963a7091-b1c0-4d07-ea2a-77185b1da1de"
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "description": "<strong>[Role Access]</strong> <br>1. Administrator <br> 2. Buyer",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "operationId": "TroliCheckout"
+      }
     }
   },
 

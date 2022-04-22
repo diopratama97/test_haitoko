@@ -31,5 +31,6 @@ router.get("/troli/:id", verifikasi(), troli.getOneTroli);
 router.post("/troli", verifikasi(), troli.insertTroli);
 router.put("/troli-update-amount/:id", verifikasi(), troli.updateAmount);
 router.delete("/troli/:id", verifikasi(), troli.deleteTroli);
+router.post("/troli-checkout", verifikasi(), troli.checkoutTroli);
 
 module.exports = router;

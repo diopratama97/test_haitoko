@@ -1,7 +1,8 @@
 let response = require("../res");
 let knex = require("../config/db/conn");
 const { v4: uuidv4 } = require("uuid");
-const { troli, getOne, del } = require("../helper/validations");
+const { troli, checkout, getOne, del } = require("../helper/validations");
+const convertToarray = require("../helper/convertString");
 require("dotenv").config();
 
 exports.getAllTroli = async (req, res) => {
@@ -142,5 +143,47 @@ exports.deleteTroli = async (req, res) => {
     }
   } catch (error) {
     response.err(error, res);
+  }
+};
+
+exports.checkoutTroli = async (req, res) => {
+  try {
+    const infoLogin = req.cookies.userInfo;
+
+    const { troli_Ids } = await checkout.validateAsync(req.body);
+    const idTrolis = convertToarray.stringToArray(troli_Ids, ",");
+
+    const detailTroli = await knex("troli")
+      .select("product_id")
+      .whereIn("id", idTrolis);
+
+    for (let i = 0; i < detailTroli.length; i++) {
+      const checkProduct = await knex("product")
+        .select("*")
+        .where("id", detailTroli[i].product_id)
+        .whereNull("deleted_at")
+        .first();
+
+      if (!checkProduct) {
+        response.notFound(res, "Product not found");
+      }
+      console.log(checkProduct);
+    }
+
+    // if (!getProduct) {
+    //   response.notFound(res, "Product not found");
+    // } else {
+    //   const troliDatas = {
+    //     id: uuidv4(),
+    //     product_id: product_id,
+    //     created_by: infoLogin.id,
+    //     amount: amount,
+    //     total: getProduct.price * amount,
+    //   };
+    //   await knex("troli").insert(troliDatas);
+    response.ok("INSERT SUCCESS", res);
+    //}
+  } catch (error) {
+    response.err(error.message, res);
   }
 };
