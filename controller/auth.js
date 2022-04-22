@@ -35,9 +35,9 @@ exports.registrasi = async (req, res) => {
       if (queryInsert) {
         // send mail
         let info = await transporter.sendMail({
-          from: '"POS - ATTECH" <attechteam12@gmail.com>',
+          from: '"TEST HAITOKO - ATTECH" <dyopratama6@gmail.com>',
           to: post.email,
-          subject: "Welcome to POS ✔",
+          subject: "Welcome to haitoko ✔",
           text: "Hello?",
           html: "<b>Hello world?</b>",
         });

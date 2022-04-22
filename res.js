@@ -34,8 +34,8 @@ exports.Login = (token, id, res) => {
   res.end();
 };
 
-exports.notFound = (res) => {
-  res.status(404).send({ message: "NOT FOUND" });
+exports.notFound = (res, data) => {
+  res.status(404).send({ message: "NOT FOUND", data: data });
   res.end();
 };
 

@@ -1,25 +1,23 @@
 let response = require("../res");
 let knex = require("../config/db/conn");
 const { v4: uuidv4 } = require("uuid");
-const { category, getOne, del } = require("../helper/validations");
+const { product, getOne, del } = require("../helper/validations");
 require("dotenv").config();
 
-exports.getAllCategory = async (req, res) => {
+exports.getAllProduct = async (req, res) => {
   try {
-    const result = await knex("product_category")
-      .select("*")
-      .whereNull("deleted_at");
+    const result = await knex("product").select("*").whereNull("deleted_at");
     response.ok(result, res);
   } catch (error) {
     response.err(error, res);
   }
 };
 
-exports.getOneCategory = async (req, res) => {
+exports.getOneProduct = async (req, res) => {
   try {
     const { id } = await getOne.validateAsync(req.params);
 
-    const result = await knex("product_category")
+    const result = await knex("product")
       .select("*")
       .where("id", id)
       .whereNull("deleted_at")
@@ -34,47 +32,68 @@ exports.getOneCategory = async (req, res) => {
   }
 };
 
-exports.insertCategory = async (req, res) => {
+exports.insertProduct = async (req, res) => {
   try {
     const infoLogin = req.cookies.userInfo;
 
     if (infoLogin.role != "Administrator") {
       response.permissionDenied(res, "Permission Denied");
     } else {
-      const { category_name } = await category.validateAsync(req.body);
-      await knex("product_category").insert({
-        id: uuidv4(),
-        category_name: category_name,
-        created_by: infoLogin.id,
-      });
-      response.ok("INSERT SUCCESS", res);
+      const { product_name, category_id, stock, price, discount } =
+        await product.validateAsync(req.body);
+
+      const checkCategory = await knex("product_category")
+        .select("id")
+        .where("id", category_id)
+        .whereNull("deleted_at")
+        .first();
+
+      if (!checkCategory) {
+        response.notFound(res, "Category not found");
+      } else {
+        await knex("product").insert({
+          id: uuidv4(),
+          product_name: product_name,
+          category_id: category_id,
+          stock: stock,
+          price: price,
+          discount: discount,
+          created_by: infoLogin.id,
+        });
+        response.ok("INSERT SUCCESS", res);
+      }
     }
   } catch (error) {
     response.err(error, res);
   }
 };
 
-exports.updateCategory = async (req, res) => {
+exports.updateProduct = async (req, res) => {
   try {
     const infoLogin = req.cookies.userInfo;
     const { id } = await getOne.validateAsync(req.params);
-    const { category_name } = await category.validateAsync(req.body);
+    const { product_name, category_id, stock, price, discount } =
+      await product.validateAsync(req.body);
 
     if (infoLogin.role != "Administrator") {
       response.permissionDenied(res, "Permission Denied");
     } else {
-      const getCategory = await knex("product_category")
+      const checkCategory = await knex("product_category")
         .select("id")
-        .where("id", id)
+        .where("id", category_id)
         .whereNull("deleted_at")
         .first();
 
-      if (!getCategory) {
-        response.notFound(res);
+      if (!checkCategory) {
+        response.notFound(res, "Category not found");
       } else {
-        await knex("product_category")
+        await knex("product")
           .update({
-            category_name: category_name,
+            product_name: product_name,
+            category_id: category_id,
+            stock: stock,
+            price: price,
+            discount: discount,
             updated_by: infoLogin.id,
           })
           .where("id", id);
@@ -87,7 +106,7 @@ exports.updateCategory = async (req, res) => {
   }
 };
 
-exports.deleteCategory = async (req, res) => {
+exports.deleteProduct = async (req, res) => {
   try {
     const infoLogin = req.cookies.userInfo;
     const { id } = await del.validateAsync(req.params);
@@ -95,16 +114,16 @@ exports.deleteCategory = async (req, res) => {
     if (infoLogin.role != "Administrator") {
       response.permissionDenied(res, "Permission Denied");
     } else {
-      const getCategory = await knex("product_category")
+      const getProduct = await knex("product")
         .select("id")
         .where("id", id)
         .whereNull("deleted_at")
         .first();
 
-      if (!getCategory) {
-        response.notFound(res);
+      if (!getProduct) {
+        response.notFound(res, "Product not found");
       } else {
-        await knex("product_category")
+        await knex("product")
           .update({
             deleted_at: new Date(),
             updated_by: infoLogin.id,

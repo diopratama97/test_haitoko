@@ -28,15 +28,17 @@
     {
       "name": "Category",
       "description": "API for Category"
+    },
+    {
+      "name": "Product",
+      "description": "API for Product"
     }
   ],
 
   "paths": {
     "/auth/register": {
       "post": {
-        "summary": "Register Account",
-        "operationId": "Register",
-        "description": "Register Authentication",
+        "summary": "Register Authentication",
         "tags": ["Auth"],
         "requestBody": {
           "required": true,
@@ -64,34 +66,42 @@
                   "role": {
                     "type": "string"
                   }
+                },
+                "required": [
+                  "name",
+                  "email",
+                  "password",
+                  "phone_number",
+                  "gender",
+                  "role"
+                ]
+              },
+              "examples": {
+                "value": {
+                  "name": "yourname",
+                  "email": "demo@mail.com",
+                  "password": "yourpasword",
+                  "gender": "L/P",
+                  "phone_number": 0,
+                  "role": "Administrator/Buyer"
                 }
               }
             }
           },
           "description": ""
         },
-        "parameters": [
-          {
-            "schema": {
-              "type": "string",
-              "default": "application/json"
-            },
-            "in": "header",
-            "name": "Accept",
-            "required": true
-          }
-        ],
         "responses": {
           "200": {
             "description": "OK"
           },
-          "400": {
-            "description": "Bad Request (Invalid request body)"
+          "401": {
+            "description": "Unauthorized"
           },
           "500": {
             "description": "Internal Server Error"
           }
-        }
+        },
+        "operationId": "Registration"
       }
     },
     "/auth/login": {
@@ -310,7 +320,7 @@
 
                   "gender": "L",
 
-                  "phone_number": "0"
+                  "phone_number": 0
                 }
               }
             }
@@ -646,6 +656,251 @@
           }
         ],
         "operationId": "DeleteCategory"
+      }
+    },
+    "/product": {
+      "get": {
+        "summary": "Get All Product",
+        "operationId": "product",
+        "description": "Get All Product",
+        "tags": ["Product"],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "default": "application/json"
+            },
+            "in": "header",
+            "name": "Accept",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request (Invalid request body)"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/product/{id}": {
+      "get": {
+        "summary": "Get One Product",
+        "tags": ["Product"],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "description": "Get One Product",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "operationId": "GetOneProduct"
+      }
+    },
+    "/middleware/product": {
+      "post": {
+        "summary": "Insert Product",
+        "tags": ["Product"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "product_name": {
+                    "type": "string"
+                  },
+                  "category_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "stock": {
+                    "type": "number"
+                  },
+                  "price": {
+                    "type": "number",
+                    "format": "double"
+                  },
+                  "discount": {
+                    "type": "number",
+                    "format": "double"
+                  }
+                },
+                "required": [
+                  "product_name",
+                  "category_id",
+                  "stock",
+                  "price",
+                  "discount"
+                ]
+              },
+              "examples": {
+                "value": {
+                  "product_name": "yourproductname",
+                  "category_id": "963a7091-b1c0-4d07-ea2a-77185b1da1de",
+                  "stock": 0,
+                  "price": 0,
+                  "discount": 0
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "description": "<strong>[Role Access]</strong> <br>1. Administrator <br>",
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "operationId": "InsertCategory"
+      }
+    },
+    "/middleware/product/{id}": {
+      "put": {
+        "summary": "Update Product",
+        "tags": ["Product"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "product_name": {
+                    "type": "string"
+                  },
+                  "category_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "stock": {
+                    "type": "number"
+                  },
+                  "price": {
+                    "type": "number",
+                    "format": "double"
+                  },
+                  "discount": {
+                    "type": "number",
+                    "format": "double"
+                  }
+                },
+                "required": [
+                  "product_name",
+                  "category_id",
+                  "stock",
+                  "price",
+                  "discount"
+                ]
+              },
+              "examples": {
+                "value": {
+                  "category_name": "yourcategoryname"
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "description": "<strong>[Role Access]</strong> <br>1. Administrator <br> ",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "operationId": "UpdateProduct"
+      },
+      "delete": {
+        "summary": "Delete Product",
+        "tags": ["Product"],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "description": "<strong>[Role Access]</strong> <br>1. Administrator <br>",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "operationId": "DeleteProduct"
       }
     }
   },

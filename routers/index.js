@@ -6,6 +6,7 @@ module.exports = (app) => {
   const home = require("../controller/index");
   const auth = require("../controller/auth");
   const category = require("../controller/product_category");
+  const product = require("../controller/product");
   //home
   app.route("/").get(home.index);
 
@@ -18,4 +19,8 @@ module.exports = (app) => {
   //list category
   app.route("/category").get(category.getAllCategory);
   app.route("/category/:id").get(category.getOneCategory);
+
+  //list product
+  app.route("/product").get(product.getAllProduct);
+  app.route("/product/:id").get(product.getOneProduct);
 };
