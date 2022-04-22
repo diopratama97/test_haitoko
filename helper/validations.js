@@ -40,6 +40,11 @@ exports.product = Joi.object({
   discount: Joi.number(),
 });
 
+exports.troli = Joi.object({
+  product_id: UUID,
+  amount: Joi.number().required(),
+});
+
 exports.getOne = Joi.object().keys({ id: UUID });
 exports.del = Joi.object({ id: UUID });
 
