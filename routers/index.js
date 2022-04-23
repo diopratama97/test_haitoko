@@ -7,6 +7,7 @@ module.exports = (app) => {
   const auth = require("../controller/auth");
   const category = require("../controller/product_category");
   const product = require("../controller/product");
+  const troli = require("../controller/troli");
   //home
   app.route("/").get(home.index);
 
@@ -23,4 +24,7 @@ module.exports = (app) => {
   //list product
   app.route("/product").get(product.getAllProduct);
   app.route("/product/:id").get(product.getOneProduct);
+
+  //callback
+  app.route("/callback").post(troli.callback);
 };

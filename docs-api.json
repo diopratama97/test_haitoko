@@ -1131,6 +1131,10 @@
                   },
                   "payment_method": {
                     "type": "string"
+                  },
+                  "nominal": {
+                    "type": "number",
+                    "format": "double"
                   }
                 },
                 "required": ["troli_Ids"]
@@ -1163,6 +1167,46 @@
           }
         ],
         "operationId": "TroliCheckout"
+      }
+    },
+    "/callback": {
+      "post": {
+        "summary": "callback",
+        "tags": ["Troli"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "payment_method": {
+                    "type": "string"
+                  }
+                }
+              },
+              "examples": {
+                "value": {
+                  "payment_method": "CASH"
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+
+        "operationId": "Callback"
       }
     }
   },
