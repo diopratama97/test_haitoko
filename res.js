@@ -45,6 +45,6 @@ exports.permissionDenied = (res, data) => {
 };
 
 exports.overAmount = (res, data) => {
-  res.status(405).send({ message: data });
+  res.status(400).send({ message: data });
   res.send();
 };

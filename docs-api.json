@@ -1128,13 +1128,17 @@
                   "troli_Ids": {
                     "type": "string",
                     "format": "uuid"
+                  },
+                  "payment_method": {
+                    "type": "string"
                   }
                 },
                 "required": ["troli_Ids"]
               },
               "examples": {
                 "value": {
-                  "troli_Ids": "963a7091-b1c0-4d07-ea2a-77185b1da1de,963a7091-b1c0-4d07-ea2a-77185b1da1de"
+                  "troli_Ids": "963a7091-b1c0-4d07-ea2a-77185b1da1de,963a7091-b1c0-4d07-ea2a-77185b1da1de",
+                  "payment_method": "CASH"
                 }
               }
             }

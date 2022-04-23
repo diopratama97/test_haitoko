@@ -28,6 +28,7 @@ exports.registrasi = async (req, res) => {
     const queryCekemail = await knex("user")
       .select("email")
       .where("email", post.email)
+      .whereNull("deleted_at")
       .first();
 
     if (!queryCekemail) {
@@ -42,15 +43,15 @@ exports.registrasi = async (req, res) => {
           html: "<b>Hello world?</b>",
         });
 
-        response.ok("Registrasi Berhasil", res);
+        return response.ok("Registrasi Berhasil", res);
       } else {
-        response.err("Registrasi gagal!", res);
+        return response.err("Registrasi gagal!", res);
       }
     } else {
-      response.duplikat("data sudah tersedia", res);
+      return response.duplikat("data sudah tersedia", res);
     }
   } catch (error) {
-    response.err(error.message, res);
+    return response.err(error.message, res);
   }
 };
 
