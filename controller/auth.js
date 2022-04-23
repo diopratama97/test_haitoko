@@ -70,7 +70,7 @@ exports.login = async (req, res) => {
       .first();
 
     if (!queryLogin) {
-      response.errLogin("Email atau Password Salah!", res);
+      return response.errLogin("Email atau Password Salah!", res);
     } else {
       const accessToken = jwt.sign(
         { queryLogin },
@@ -99,27 +99,31 @@ exports.login = async (req, res) => {
         maxAge: 24 * 60 * 60 * 1000,
       });
 
-      response.Login(accessToken, queryLogin.id, res);
+      return response.Login(accessToken, queryLogin.id, res);
     }
   } catch (error) {
-    response.err(error, res);
+    return response.err(error, res);
   }
 };
 
 exports.Logout = async (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
-  if (!refreshToken) return res.sendStatus(204);
-  const user = await knex("user")
-    .select("*")
-    .where("refresh_token", refreshToken)
-    .first();
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) return res.sendStatus(204);
+    const user = await knex("user")
+      .select("*")
+      .where("refresh_token", refreshToken)
+      .first();
 
-  if (!user) return res.sendStatus(204);
+    if (!user) return res.sendStatus(204);
 
-  await knex("user").update("refresh_token", null).where("id", user.id);
-  res.clearCookie("refreshToken");
-  res.clearCookie("userInfo");
-  return res.sendStatus(200);
+    await knex("user").update("refresh_token", null).where("id", user.id);
+    res.clearCookie("refreshToken");
+    res.clearCookie("userInfo");
+    return response.ok("Logout Berhasil", res);
+  } catch (error) {
+    return response.err(error, res);
+  }
 };
 
 exports.tokenRefresh = async (req, res) => {
@@ -149,6 +153,6 @@ exports.tokenRefresh = async (req, res) => {
       }
     );
   } catch (error) {
-    console.log(error);
+    return response.err(error, res);
   }
 };

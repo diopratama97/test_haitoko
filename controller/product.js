@@ -7,9 +7,9 @@ require("dotenv").config();
 exports.getAllProduct = async (req, res) => {
   try {
     const result = await knex("product").select("*").whereNull("deleted_at");
-    response.ok(result, res);
+    return response.ok(result, res);
   } catch (error) {
-    response.err(error, res);
+    return response.err(error, res);
   }
 };
 
@@ -23,12 +23,12 @@ exports.getOneProduct = async (req, res) => {
       .whereNull("deleted_at")
       .first();
     if (!result) {
-      response.notFound(res);
+      return response.notFound(res);
     } else {
-      response.ok(result, res);
+      return response.ok(result, res);
     }
   } catch (error) {
-    response.err(error, res);
+    return response.err(error, res);
   }
 };
 
@@ -37,7 +37,7 @@ exports.insertProduct = async (req, res) => {
     const infoLogin = req.cookies.userInfo;
 
     if (infoLogin.role != "Administrator") {
-      response.permissionDenied(res, "Permission Denied");
+      return response.permissionDenied(res, "Permission Denied");
     } else {
       const { product_name, category_id, stock, price, discount } =
         await product.validateAsync(req.body);
@@ -49,7 +49,7 @@ exports.insertProduct = async (req, res) => {
         .first();
 
       if (!checkCategory) {
-        response.notFound(res, "Category not found");
+        return response.notFound(res, "Category not found");
       } else {
         await knex("product").insert({
           id: uuidv4(),
@@ -60,11 +60,11 @@ exports.insertProduct = async (req, res) => {
           discount: discount,
           created_by: infoLogin.id,
         });
-        response.ok("INSERT SUCCESS", res);
+        return response.ok("INSERT SUCCESS", res);
       }
     }
   } catch (error) {
-    response.err(error, res);
+    return response.err(error, res);
   }
 };
 
@@ -76,7 +76,7 @@ exports.updateProduct = async (req, res) => {
       await product.validateAsync(req.body);
 
     if (infoLogin.role != "Administrator") {
-      response.permissionDenied(res, "Permission Denied");
+      return response.permissionDenied(res, "Permission Denied");
     } else {
       const checkCategory = await knex("product_category")
         .select("id")
@@ -85,7 +85,7 @@ exports.updateProduct = async (req, res) => {
         .first();
 
       if (!checkCategory) {
-        response.notFound(res, "Category not found");
+        return response.notFound(res, "Category not found");
       } else {
         await knex("product")
           .update({
@@ -98,11 +98,11 @@ exports.updateProduct = async (req, res) => {
           })
           .where("id", id);
 
-        response.ok("UPDATE SUCCESS", res);
+        return response.ok("UPDATE SUCCESS", res);
       }
     }
   } catch (error) {
-    response.err(error, res);
+    return response.err(error, res);
   }
 };
 
@@ -112,7 +112,7 @@ exports.deleteProduct = async (req, res) => {
     const { id } = await del.validateAsync(req.params);
 
     if (infoLogin.role != "Administrator") {
-      response.permissionDenied(res, "Permission Denied");
+      return response.permissionDenied(res, "Permission Denied");
     } else {
       const getProduct = await knex("product")
         .select("id")
@@ -121,7 +121,7 @@ exports.deleteProduct = async (req, res) => {
         .first();
 
       if (!getProduct) {
-        response.notFound(res, "Product not found");
+        return response.notFound(res, "Product not found");
       } else {
         await knex("product")
           .update({
@@ -129,10 +129,10 @@ exports.deleteProduct = async (req, res) => {
             updated_by: infoLogin.id,
           })
           .where("id", id);
-        response.ok("DELETE SUCCESS", res);
+        return response.ok("DELETE SUCCESS", res);
       }
     }
   } catch (error) {
-    response.err(error, res);
+    return response.err(error, res);
   }
 };

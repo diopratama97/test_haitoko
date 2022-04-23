@@ -9,9 +9,9 @@ exports.getAllCategory = async (req, res) => {
     const result = await knex("product_category")
       .select("*")
       .whereNull("deleted_at");
-    response.ok(result, res);
+    return response.ok(result, res);
   } catch (error) {
-    response.err(error, res);
+    return response.err(error, res);
   }
 };
 
@@ -25,12 +25,12 @@ exports.getOneCategory = async (req, res) => {
       .whereNull("deleted_at")
       .first();
     if (!result) {
-      response.notFound(res);
+      return response.notFound(res);
     } else {
-      response.ok(result, res);
+      return response.ok(result, res);
     }
   } catch (error) {
-    response.err(error, res);
+    return response.err(error, res);
   }
 };
 
@@ -39,7 +39,7 @@ exports.insertCategory = async (req, res) => {
     const infoLogin = req.cookies.userInfo;
 
     if (infoLogin.role != "Administrator") {
-      response.permissionDenied(res, "Permission Denied");
+      return response.permissionDenied(res, "Permission Denied");
     } else {
       const { category_name } = await category.validateAsync(req.body);
       await knex("product_category").insert({
@@ -47,10 +47,10 @@ exports.insertCategory = async (req, res) => {
         category_name: category_name,
         created_by: infoLogin.id,
       });
-      response.ok("INSERT SUCCESS", res);
+      return response.ok("INSERT SUCCESS", res);
     }
   } catch (error) {
-    response.err(error, res);
+    return response.err(error, res);
   }
 };
 
@@ -61,7 +61,7 @@ exports.updateCategory = async (req, res) => {
     const { category_name } = await category.validateAsync(req.body);
 
     if (infoLogin.role != "Administrator") {
-      response.permissionDenied(res, "Permission Denied");
+      return response.permissionDenied(res, "Permission Denied");
     } else {
       const getCategory = await knex("product_category")
         .select("id")
@@ -70,7 +70,7 @@ exports.updateCategory = async (req, res) => {
         .first();
 
       if (!getCategory) {
-        response.notFound(res);
+        return response.notFound(res);
       } else {
         await knex("product_category")
           .update({
@@ -79,11 +79,11 @@ exports.updateCategory = async (req, res) => {
           })
           .where("id", id);
 
-        response.ok("UPDATE SUCCESS", res);
+        return response.ok("UPDATE SUCCESS", res);
       }
     }
   } catch (error) {
-    response.err(error, res);
+    return response.err(error, res);
   }
 };
 
@@ -93,7 +93,7 @@ exports.deleteCategory = async (req, res) => {
     const { id } = await del.validateAsync(req.params);
 
     if (infoLogin.role != "Administrator") {
-      response.permissionDenied(res, "Permission Denied");
+      return response.permissionDenied(res, "Permission Denied");
     } else {
       const getCategory = await knex("product_category")
         .select("id")
@@ -102,7 +102,7 @@ exports.deleteCategory = async (req, res) => {
         .first();
 
       if (!getCategory) {
-        response.notFound(res);
+        return response.notFound(res);
       } else {
         await knex("product_category")
           .update({
@@ -110,10 +110,10 @@ exports.deleteCategory = async (req, res) => {
             updated_by: infoLogin.id,
           })
           .where("id", id);
-        response.ok("DELETE SUCCESS", res);
+        return response.ok("DELETE SUCCESS", res);
       }
     }
   } catch (error) {
-    response.err(error, res);
+    return response.err(error, res);
   }
 };

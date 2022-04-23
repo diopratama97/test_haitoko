@@ -12,9 +12,9 @@ require("dotenv").config();
 exports.getAllUsers = async (req, res) => {
   try {
     const result = await knex("user").select("*").whereNull("deleted_at");
-    response.ok(result, res);
+    return response.ok(result, res);
   } catch (error) {
-    response.err(error, res);
+    return response.err(error, res);
   }
 };
 
@@ -28,12 +28,12 @@ exports.getOneUsers = async (req, res) => {
       .whereNull("deleted_at")
       .first();
     if (!getOneUser) {
-      response.notFound(res);
+      return response.notFound(res);
     } else {
-      response.ok(getOneUser, res);
+      return response.ok(getOneUser, res);
     }
   } catch (error) {
-    response.err(error, res);
+    return response.err(error, res);
   }
 };
 
@@ -50,7 +50,7 @@ exports.updateUsers = async (req, res) => {
       .first();
 
     if (!getUser) {
-      response.notFound(res);
+      return response.notFound(res);
     } else {
       const usersData = {
         name: name,
@@ -59,10 +59,10 @@ exports.updateUsers = async (req, res) => {
         phone_number: phone_number,
       };
       await knex("user").update(usersData).where("id", id);
-      response.ok("UPDATE SUCCESS", res);
+      return response.ok("UPDATE SUCCESS", res);
     }
   } catch (error) {
-    response.err(error, res);
+    return response.err(error, res);
   }
 };
 
@@ -72,10 +72,13 @@ exports.deleteUsers = async (req, res) => {
     const { id } = await del.validateAsync(req.params);
 
     if (userLogin.role != "Administrator") {
-      response.permissionDenied(res, "Permission Denied");
+      return response.permissionDenied(res, "Permission Denied");
     } else {
       if (id == userLogin.id) {
-        response.permissionDenied(res, "Cannot delete if you still login");
+        return response.permissionDenied(
+          res,
+          "Cannot delete if you still login"
+        );
       } else {
         const getUser = await knex("user")
           .select("*")
@@ -83,15 +86,15 @@ exports.deleteUsers = async (req, res) => {
           .whereNull("deleted_at")
           .first();
         if (!getUser) {
-          response.notFound(res);
+          return response.notFound(res);
         } else {
           await knex("user").update("deleted_at", new Date()).where("id", id);
-          response.ok("DELETE SUCCESS", res);
+          return response.ok("DELETE SUCCESS", res);
         }
       }
     }
   } catch (error) {
-    response.err(error, res);
+    return response.err(error, res);
   }
 };
 
@@ -109,19 +112,19 @@ exports.changePassword = async (req, res) => {
       .first();
 
     if (!getUser) {
-      response.notFound(res);
+      return response.notFound(res);
     } else {
       const checkPassword = newPassword == confirmPassword;
       if (checkPassword == true) {
         await knex("user")
           .update("password", md5(newPassword))
           .where("id", getUser.id);
-        response.ok("BERHASIL UBAH PASSWORD", res);
+        return response.ok("BERHASIL UBAH PASSWORD", res);
       } else {
-        response.err("Password salah!", res);
+        return response.err("Password salah!", res);
       }
     }
   } catch (error) {
-    response.err(error, res);
+    return response.err(error, res);
   }
 };
