@@ -47,7 +47,7 @@ exports.troli = Joi.object({
 
 exports.checkout = Joi.object({
   troli_Ids: Joi.string().required(),
-  payment_method: Joi.string().required(),
+  payment_method: Joi.string().valid("CASH").required(),
 });
 
 exports.getOne = Joi.object().keys({ id: UUID });
