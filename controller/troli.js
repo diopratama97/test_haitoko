@@ -3,6 +3,7 @@ let knex = require("../config/db/conn");
 const { v4: uuidv4 } = require("uuid");
 const { troli, checkout, getOne, del } = require("../helper/validations");
 const convertToarray = require("../helper/convertString");
+const { createInvoice } = require("../helper/xendit");
 require("dotenv").config();
 
 exports.getAllTroli = async (req, res) => {
@@ -185,6 +186,26 @@ exports.checkoutTroli = async (req, res) => {
       .sum("total as t")
       .whereIn("id", idTrolis);
 
+    let responseXendit = {
+      data: {
+        expiry_date: null,
+        available_banks: [{ bank_account_number: null }],
+        external_id: null,
+      },
+    };
+
+    if (payment_method != "CASH") {
+      const dataInvoiceXendit = {
+        externalID: invoiceNoExt,
+        amount: sumTotal[0].t,
+        payerEmail: infoLogin.email,
+        paymentMethods: [payment_method],
+        description: `Test Pembayaran Haitoko`,
+      };
+
+      responseXendit = await createInvoice(dataInvoiceXendit);
+    }
+
     const dataInvoice = {
       id: uuidv4(),
       invoice_no: invoiceNo,
@@ -194,8 +215,9 @@ exports.checkoutTroli = async (req, res) => {
       created_by: infoLogin.id,
       invoice_no_ext: payment_method == "CASH" ? null : invoiceNoExt,
       invoice_bank_info: payment_method == "CASH" ? "CASH" : invoiceNoExt,
-      invoice_paid_at: payment_method == "CASH" ? new Date() : invoiceNoExt,
-      invoice_url: null,
+      invoice_paid_at: payment_method == "CASH" ? new Date() : null,
+      invoice_url:
+        payment_method == "CASH" ? null : responseXendit.data.invoice_url,
     };
 
     await knex("invoice").insert(dataInvoice);
@@ -217,6 +239,59 @@ exports.checkoutTroli = async (req, res) => {
     }
 
     return response.ok("INSERT SUCCESS", res);
+  } catch (error) {
+    return response.err(error.message, res);
+  }
+};
+
+exports.callBack = async (req, res) => {
+  try {
+    let notificationBody;
+    const getInvoice = await knex("invoice as i")
+      .leftJoin("user as u", "u.id", "i.created_by")
+      .select("i.id", "i.created_by", "i.invoice_no", "u.email", "u.name")
+      .where("invoice_no_ext", req.body.external_id)
+      .first();
+
+    if (!getInvoice) {
+      return response.notFound(res, "Invoice Not Found");
+    }
+
+    const dataInvoice = {
+      invoice_paid_at: req.body.status === "PAID" ? new Date() : null,
+      invoice_status: req.body.status === "PAID" ? "PAID" : "EXPIRED",
+    };
+
+    await knex("invoice").update(dataInvoice).where("id", getInvoice.id);
+
+    // if (ctx.data.status === "PAID") {
+    //   await ctx.moco.email.sendWithTemplate(
+    //     "paymentSuccess",
+    //     getInvoice.email,
+    //     {
+    //       name: getInvoice.name,
+    //     }
+    //   );
+    // }
+
+    const dataXendit = {
+      external_id: req.body.external_id,
+      payment_method: req.body.payment_method,
+      amount: req.body.amount,
+      paid_amount: req.body.paid_amount,
+      status: req.body.status,
+      payment_channel: req.body.payment_channel,
+      payment_destination: req.body.payment_destination,
+    };
+
+    return (
+      response.ok({
+        code: "success",
+        message: "callback success",
+        data: dataXendit,
+      }),
+      res
+    );
   } catch (error) {
     return response.err(error.message, res);
   }
