@@ -62,7 +62,7 @@ exports.insertTroli = async (req, res) => {
     const { product_id, amount } = await troli.validateAsync(req.body);
 
     const getProduct = await knex("product")
-      .select("price")
+      .select("price", "stock")
       .where("id", product_id)
       .whereNull("deleted_at")
       .first();
@@ -71,14 +71,33 @@ exports.insertTroli = async (req, res) => {
       return response.notFound(res, "Product not found");
     }
 
-    const troliDatas = {
-      id: uuidv4(),
-      product_id: product_id,
-      created_by: infoLogin.id,
-      amount: amount,
-      total: getProduct.price * amount,
-    };
-    await knex("troli").insert(troliDatas);
+    if (amount > getProduct.stock) {
+      return response.overAmount(res, "Amount exceed stock product!");
+    }
+
+    const checkProductTroli = await knex("troli")
+      .select("id", "amount", "total")
+      .where("product_id", product_id)
+      .andWhere("created_by", infoLogin.id)
+      .andWhere("status", "DRAFT")
+      .first();
+
+    if (!checkProductTroli) {
+      const troliDatas = {
+        id: uuidv4(),
+        product_id: product_id,
+        created_by: infoLogin.id,
+        amount: amount,
+        total: getProduct.price * amount,
+      };
+      await knex("troli").insert(troliDatas);
+    } else {
+      const updateTroli = {
+        amount: checkProductTroli.amount + amount,
+        total: checkProductTroli.total + amount * getProduct.price,
+      };
+      await knex("troli").update(updateTroli).where("id", checkProductTroli.id);
+    }
     return response.ok("INSERT SUCCESS", res);
   } catch (error) {
     return response.err(error, res);
@@ -193,6 +212,10 @@ exports.checkoutTroli = async (req, res) => {
       }
     }
 
+    if (payment_method == "CASH" && nominal == 0) {
+      return response.err("Must be value if you choice payment method CASH!");
+    }
+
     let responseXendit = {
       data: {
         expiry_date: null,
@@ -216,6 +239,7 @@ exports.checkoutTroli = async (req, res) => {
 
       responseXendit = await invoice.createInvoice(dataInvoiceXendit);
     }
+    console.log(responseXendit.invoice_url);
 
     const dataInvoice = {
       id: uuidv4(),
@@ -228,13 +252,12 @@ exports.checkoutTroli = async (req, res) => {
         ? "PAID"
         : "UNPAID",
       created_by: infoLogin.id,
-      invoice_bank_info: payment_method == "CASH" ? "CASH" : null,
+      invoice_bank_info: payment_method == "CASH" ? "CASH" : payment_method,
       invoice_paid_at: payment_method == "CASH" ? new Date() : null,
       fee_nominal: payment_method == "CASH" ? nominal : null,
       fee_change: nominal >= sumTotal[0].t ? nominal - sumTotal[0].t : null,
       invoice_no_ext: payment_method == "CASH" ? null : invoiceNoExt,
-      invoice_url:
-        payment_method == "CASH" ? null : responseXendit.data.invoice_url,
+      invoice_url: payment_method == "CASH" ? null : responseXendit.invoice_url,
     };
 
     await knex("invoice").insert(dataInvoice);
@@ -264,6 +287,8 @@ exports.checkoutTroli = async (req, res) => {
       {
         message: "INSERT SUCCESS",
         fee_change: payment_method == "CASH" ? dataInvoice.fee_change : null,
+        invoice_url:
+          payment_method == "CASH" ? null : responseXendit.invoice_url,
       },
       res
     );

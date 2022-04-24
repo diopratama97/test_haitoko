@@ -102,19 +102,23 @@ exports.changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword, confirmPassword } =
       await changePass.validateAsync(req.body);
-    const userId = req.cookies.userId;
+    const userId = req.cookies.userInfo;
 
     const getUser = await knex("user")
       .select("*")
-      .where("id", userId)
+      .where("id", userId.id)
       .whereNull("deleted_at")
-      .andWhere("password", md5(oldPassword))
       .first();
 
     if (!getUser) {
-      return response.notFound(res);
+      return response.notFound(res, "User not found");
     } else {
       const checkPassword = newPassword == confirmPassword;
+      const checkOldPassword = getUser.password == md5(oldPassword);
+
+      if (checkOldPassword == false) {
+        return response.err("Password lama salah!", res);
+      }
       if (checkPassword == true) {
         await knex("user")
           .update("password", md5(newPassword))
@@ -125,6 +129,6 @@ exports.changePassword = async (req, res) => {
       }
     }
   } catch (error) {
-    return response.err(error, res);
+    return response.err(error.message, res);
   }
 };
