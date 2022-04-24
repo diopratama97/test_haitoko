@@ -180,6 +180,7 @@ exports.checkoutTroli = async (req, res) => {
     const builder = knex("product").select("*");
 
     let productCheck = [];
+    let Discount = 0;
     for (let i = 0; i < detailTroli.length; i++) {
       const checkProduct = await builder
         .clone()
@@ -189,6 +190,9 @@ exports.checkoutTroli = async (req, res) => {
 
       if (!checkProduct) {
         productCheck.push(detailTroli[i].product_id);
+      }
+      if (checkProduct) {
+        Discount += checkProduct.discount;
       }
     }
 
@@ -216,6 +220,8 @@ exports.checkoutTroli = async (req, res) => {
       return response.err("Must be value if you choice payment method CASH!");
     }
 
+    let totalDiscount = Discount != 0 ? Discount / 100 : 0;
+
     let responseXendit = {
       data: {
         expiry_date: null,
@@ -226,7 +232,7 @@ exports.checkoutTroli = async (req, res) => {
 
     const dataInvoiceXendit = {
       externalID: invoiceNoExt,
-      amount: sumTotal[0].t,
+      amount: Discount != 0 ? sumTotal[0].t * totalDiscount : sumTotal[0].t,
       payerEmail: infoLogin.email,
       paymentMethods: [payment_method],
       description: `Test pembayaran haitoko`,
@@ -239,13 +245,13 @@ exports.checkoutTroli = async (req, res) => {
 
       responseXendit = await invoice.createInvoice(dataInvoiceXendit);
     }
-    console.log(responseXendit.invoice_url);
 
     const dataInvoice = {
       id: uuidv4(),
       invoice_no: invoiceNo,
       invoice_date: new Date(),
-      invoice_total: sumTotal[0].t,
+      invoice_total:
+        Discount != 0 ? sumTotal[0].t * totalDiscount : sumTotal[0].t,
       invoice_status: !payment_method
         ? "DRAFT"
         : payment_method == "CASH"
@@ -255,7 +261,12 @@ exports.checkoutTroli = async (req, res) => {
       invoice_bank_info: payment_method == "CASH" ? "CASH" : payment_method,
       invoice_paid_at: payment_method == "CASH" ? new Date() : null,
       fee_nominal: payment_method == "CASH" ? nominal : null,
-      fee_change: nominal >= sumTotal[0].t ? nominal - sumTotal[0].t : null,
+      fee_change:
+        nominal >= sumTotal[0].t && Discount == 0
+          ? nominal - sumTotal[0].t
+          : nominal >= sumTotal[0].t && Discount != 0
+          ? nominal - sumTotal[0].t * totalDiscount
+          : null,
       invoice_no_ext: payment_method == "CASH" ? null : invoiceNoExt,
       invoice_url: payment_method == "CASH" ? null : responseXendit.invoice_url,
     };
