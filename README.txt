@@ -7,7 +7,7 @@
 6. untuk desain rest api berada di swagger. Dengan mengakses http://localhost:3030/docs-api jika server sudah berjalan
 7. untuk hasil run api. berada di dalam folder test_haitoko
 8. desain db berada di folder config/db
-9. untuk contoh payload request beraa di swagger
+9. untuk contoh payload request berada di swagger
 10. untuk menggunakan callback bisa dengan payload di bawah ini. Saya menggunakan ngrok untuk membuat server local di laptop saya menjadi online dan bisa di akses oleh xendit. Karena url nya sering berubah ubah ketika start ngrok, bisa menggunakan payload di bawah ini dengan mengganti value external_id dengan invoice_no_ext yg berada di tabel invoice
 
 {
